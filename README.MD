@@ -162,9 +162,3 @@ netscan/
 
 > ⚠️ **Legal notice:** Only scan networks you own or have explicit permission to scan. Unauthorized network scanning may be illegal in your jurisdiction.
 
----
-
-## 📬 Contact
-
-**Synerdyn**  
-Email: [business@synerdyn.net](mailto:business@synerdyn.net)
