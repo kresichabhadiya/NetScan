@@ -1,5 +1,4 @@
 # 📡 NetScan — Network Discovery Scanner
-> by **Synerdyn** · business@synerdyn.net
 
 ![Version](https://img.shields.io/badge/version-1.0-00ffe5?style=flat-square)
 ![Python](https://img.shields.io/badge/python-3.7+-00aaff?style=flat-square)
