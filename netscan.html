@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NetScan — by Synerdyn</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #020b10;
+            --panel: #050f17;
+            --border: #0d3a52;
+            --accent: #00ffe5;
+            --accent2: #00aaff;
+            --accent3: #ff3c6e;
+            --text: #b0d8e8;
+            --text-dim: #3d6e82;
+            --online: #00ff88;
+            --offline: #ff3c6e;
+            --glow: 0 0 18px #00ffe566;
+            --glow2: 0 0 30px #00aaff44;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Exo 2', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 255, 229, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 229, 0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridPulse 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 170, 255, 0.09) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(0, 255, 229, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridPulse {
+
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1.3;
+            }
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            text-align: center;
+            padding: 52px 0 32px;
+            position: relative;
+        }
+
+        .logo-pre {
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--accent);
+            font-size: 11px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            margin-bottom: 12px;
+            animation: fadeIn 0.6s ease both;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(36px, 8vw, 72px);
+            letter-spacing: 8px;
+            background: linear-gradient(135deg, #00ffe5 0%, #00aaff 60%, #ff3c6e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px #00ffe555);
+            animation: fadeIn 0.8s ease 0.1s both;
+        }
+
+        .logo-sub {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 4px;
+            margin-top: 10px;
+            animation: fadeIn 1s ease 0.2s both;
+        }
+
+        .logo-sub span {
+            color: var(--accent2);
+        }
+
+        /* Scan line effect */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: scanDown 6s linear infinite;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes scanDown {
+            0% {
+                top: 0;
+            }
+
+            100% {
+                top: 100vh;
+            }
+        }
+
+        /* ===== PANEL ===== */
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 255, 229, 0.03);
+        }
+
+        .panel-header .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot.r {
+            background: #ff3c6e;
+            box-shadow: 0 0 6px #ff3c6e88;
+        }
+
+        .dot.y {
+            background: #ffd600;
+            box-shadow: 0 0 6px #ffd60088;
+        }
+
+        .dot.g {
+            background: #00ff88;
+            box-shadow: 0 0 6px #00ff8888;
+        }
+
+        .panel-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            margin-left: 6px;
+        }
+
+        .panel-body {
+            padding: 24px;
+        }
+
+        /* ===== INPUT SECTION ===== */
+        .input-section {
+            margin-bottom: 28px;
+            animation: fadeUp 0.7s ease 0.1s both;
+        }
+
+        .input-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .net-input {
+            flex: 1;
+            min-width: 220px;
+            background: rgba(0, 255, 229, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--accent);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 15px;
+            padding: 12px 18px;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            letter-spacing: 1px;
+        }
+
+        .net-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .net-input:focus {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .btn:active::after {
+            opacity: 0.07;
+        }
+
+        .btn-scan {
+            background: linear-gradient(135deg, #007a6a, #005580);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            box-shadow: var(--glow);
+        }
+
+        .btn-scan:hover {
+            background: linear-gradient(135deg, #00b89a, #007ac0);
+            box-shadow: 0 0 32px #00ffe577;
+            transform: translateY(-1px);
+        }
+
+        .btn-scan:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-auto {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            padding: 12px 18px;
+        }
+
+        .btn-auto:hover {
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            padding: 12px 18px;
+        }
+
+        .btn-clear:hover {
+            border-color: var(--accent3);
+            color: var(--accent3);
+        }
+
+        /* ===== FORMAT CHIPS ===== */
+        .format-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .chip {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            padding: 5px 12px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+        }
+
+        .chip:hover,
+        .chip.active {
+            border-color: var(--accent2);
+            color: var(--accent2);
+            background: rgba(0, 170, 255, 0.07);
+        }
+
+        .format-hint {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+
+        .format-hint b {
+            color: var(--accent);
+        }
+
+        /* ===== STATUS BAR ===== */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: rgba(0, 255, 229, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            min-height: 42px;
+            transition: border-color 0.3s;
+        }
+
+        .status-bar.scanning {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+
+        .status-bar.done {
+            border-color: var(--online);
+            box-shadow: 0 0 12px #00ff8833;
+        }
+
+        .status-bar.error {
+            border-color: var(--offline);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+
+        .status-bar.scanning .status-dot {
+            background: var(--accent);
+            animation: blink 0.7s ease infinite;
+        }
+
+        .status-bar.done .status-dot {
+            background: var(--online);
+        }
+
+        .status-bar.error .status-dot {
+            background: var(--offline);
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        .status-text {
+            color: var(--text);
+            flex: 1;
+        }
+
+        .status-bar.scanning .status-text {
+            color: var(--accent);
+        }
+
+        .status-bar.done .status-text {
+            color: var(--online);
+        }
+
+        .status-bar.error .status-text {
+            color: var(--offline);
+        }
+
+        .progress-bar-outer {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            max-width: 200px;
+            display: none;
+        }
+
+        .status-bar.scanning .progress-bar-outer {
+            display: block;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent2), var(--accent));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: 0 0 8px var(--accent);
+            animation: progressAnim 2s ease-in-out infinite;
+        }
+
+        @keyframes progressAnim {
+            0% {
+                width: 5%;
+            }
+
+            50% {
+                width: 80%;
+            }
+
+            100% {
+                width: 95%;
+            }
+        }
+
+        /* ===== RESULTS ===== */
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            padding: 3px 12px;
+            border-radius: 3px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: var(--online);
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-sm {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            padding: 5px 14px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-sm:hover {
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        /* Result list */
+        .result-list {
+            display: grid;
+            gap: 6px;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 16px;
+            background: rgba(0, 255, 136, 0.04);
+            border: 1px solid rgba(0, 255, 136, 0.12);
+            border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            animation: slideIn 0.3s ease both;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .result-item:hover {
+            border-color: rgba(0, 255, 136, 0.4);
+            background: rgba(0, 255, 136, 0.07);
+        }
+
+        .result-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--online);
+            box-shadow: 0 0 8px var(--online);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-ping {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--online);
+            box-shadow: 0 0 8px var(--online);
+            flex-shrink: 0;
+            animation: blink 1.5s ease infinite;
+        }
+
+        .result-ip {
+            color: var(--online);
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .result-index {
+            color: var(--text-dim);
+            font-size: 10px;
+            margin-left: auto;
+        }
+
+        /* Empty / placeholder */
+        .empty-state {
+            text-align: center;
+            padding: 52px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-icon {
+            font-size: 42px;
+            margin-bottom: 14px;
+            filter: grayscale(1) opacity(0.3);
+        }
+
+        .empty-state p {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        /* ===== TERMINAL LOG ===== */
+        .terminal {
+            background: #010810;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 18px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+            max-height: 220px;
+            overflow-y: auto;
+            color: var(--text-dim);
+            margin-top: 20px;
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: #010810;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .log-line {
+            display: block;
+            word-break: break-all;
+        }
+
+        .log-time {
+            color: var(--text-dim);
+            margin-right: 8px;
+        }
+
+        .log-ok {
+            color: var(--online);
+        }
+
+        .log-err {
+            color: var(--offline);
+        }
+
+        .log-info {
+            color: var(--accent2);
+        }
+
+        .log-warn {
+            color: #ffd600;
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 7px;
+            height: 13px;
+            background: var(--accent);
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+        }
+
+        /* ===== INFO CARDS ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-top: 28px;
+        }
+
+        .info-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 18px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.6s ease both;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .info-card:hover {
+            border-color: var(--accent2);
+            box-shadow: var(--glow2);
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+            opacity: 0.4;
+        }
+
+        .info-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 6px;
+            text-shadow: 0 0 16px var(--accent);
+        }
+
+        .info-lbl {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+
+        footer a {
+            color: var(--accent2);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== API NOTICE BANNER ===== */
+        .api-notice {
+            background: rgba(255, 214, 0, 0.05);
+            border: 1px solid rgba(255, 214, 0, 0.2);
+            border-radius: 4px;
+            padding: 14px 18px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: #ffd600aa;
+            letter-spacing: 1px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .api-notice b {
+            color: #ffd600;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .input-row {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="scanline"></div>
+
+    <div class="wrap">
+
+        <!-- HEADER -->
+        <header>
+            <div class="logo-pre">▸ Synerdyn Network Tools</div>
+            <div class="logo">NetScan</div>
+            <div class="logo-sub">Network Discovery Scanner &nbsp;|&nbsp; <span>v1.0</span></div>
+        </header>
+
+        <!-- STATS CARDS -->
+        <div class="info-grid" id="statsGrid">
+            <div class="info-card">
+                <span class="info-val" id="statTotal">—</span>
+                <span class="info-lbl">Hosts Scanned</span>
+            </div>
+            <div class="info-card">
+                <span class="info-val" id="statOnline"
+                    style="color:var(--online);text-shadow:0 0 16px var(--online)">—</span>
+                <span class="info-lbl">Online Hosts</span>
+            </div>
+            <div class="info-card">
+                <span class="info-val" id="statTime">—</span>
+                <span class="info-lbl">Scan Duration</span>
+            </div>
+            <div class="info-card">
+                <span class="info-val" id="statNet" style="font-size:16px;letter-spacing:0">—</span>
+                <span class="info-lbl">Network Range</span>
+            </div>
+        </div>
+
+        <!-- INPUT PANEL -->
+        <div class="panel" style="margin-top:28px; animation-delay:0.15s">
+            <div class="panel-header">
+                <div class="dots">
+                    <div class="dot r"></div>
+                    <div class="dot y"></div>
+                    <div class="dot g"></div>
+                </div>
+                <span class="panel-title">// SCAN CONFIGURATION</span>
+            </div>
+            <div class="panel-body">
+
+                <!-- <div class="api-notice">
+                    <b>⚡ DEMO MODE:</b> This frontend simulates scanning in the browser.<br>
+                    To connect to your real <b>netscan.py</b> backend, see the <b>backend integration guide</b> below ↓
+                </div> -->
+
+                <div class="input-section">
+                    <label class="input-label" for="netInput">// Target Network</label>
+                    <div class="input-row">
+                        <input class="net-input" id="netInput" type="text"
+                            placeholder="e.g. 192.168.1.0/24  or  192.168.1" autocomplete="off" spellcheck="false" />
+                        <button class="btn btn-scan" id="btnScan" onclick="startScan()">⟶ Scan</button>
+                        <button class="btn btn-auto" onclick="autoDetect()">⊙ Auto-Detect</button>
+                        <button class="btn btn-clear" onclick="clearResults()">✕ Clear</button>
+                    </div>
+
+                    <div class="format-row">
+                        <button class="chip" onclick="setExample('192.168.1.0/24')">192.168.1.0/24</button>
+                        <button class="chip" onclick="setExample('10.0.0.0/24')">10.0.0.0/24</button>
+                        <button class="chip" onclick="setExample('172.16.0.0/24')">172.16.0.0/24</button>
+                        <button class="chip" onclick="setExample('192.168.0.0/16')">192.168.0.0/16</button>
+                    </div>
+
+                    <div class="format-hint" style="margin-top:10px">
+                        Accepted formats: &nbsp;
+                        <b>192.168.1.0/24</b> &nbsp;·&nbsp;
+                        <b>192.168.1</b> &nbsp;·&nbsp;
+                        <b>192.168.1.5</b> &nbsp;·&nbsp;
+                        <b>10.0.0.0/8</b>
+                    </div>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="status-bar" id="statusBar">
+                    <div class="status-dot"></div>
+                    <span class="status-text" id="statusText">Ready to scan. Enter a network range and hit Scan.</span>
+                    <div class="progress-bar-outer">
+                        <div class="progress-bar-inner" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="results-header" id="resultsHeader" style="display:none">
+                    <span class="results-title">// Online Hosts</span>
+                    <div class="results-actions">
+                        <span class="badge" id="countBadge">0 found</span>
+                        <button class="btn-sm" onclick="exportTxt()">↓ Export TXT</button>
+                        <button class="btn-sm" onclick="copyAll()">⎘ Copy All</button>
+                    </div>
+                </div>
+
+                <div id="resultList" class="result-list"></div>
+
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">📡</div>
+                    <p>// No scan results yet</p>
+                </div>
+
+                <!-- Terminal Log -->
+                <div class="terminal" id="termLog">
+                    <span class="log-line"><span class="log-time">[00:00:00]</span> <span class="log-info">NetScan v1.0
+                            initialized</span></span>
+                    <span class="log-line"><span class="log-time">[00:00:00]</span> <span class="log-info">Awaiting scan
+                            target...</span> <span class="cursor-blink"></span></span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BACKEND INTEGRATION GUIDE
+        <div class="panel" style="margin-top:28px; animation-delay:0.3s">
+            <div class="panel-header">
+                <div class="dots">
+                    <div class="dot r"></div>
+                    <div class="dot y"></div>
+                    <div class="dot g"></div>
+                </div>
+                <span class="panel-title">// BACKEND INTEGRATION GUIDE — HOW TO CONNECT netscan.py</span>
+            </div>
+            <div class="panel-body">
+                <div style="font-family:'Share Tech Mono',monospace; font-size:12px; line-height:2; color:var(--text);">
+
+                    <div style="color:var(--accent); margin-bottom:10px; letter-spacing:2px; font-size:11px;">
+                        STEP 1 — Install Flask (Python web framework)
+                    </div>
+                    <div
+                        style="background:#010810;border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:18px;color:var(--accent2);">
+                        pip install flask flask-cors
+                    </div>
+
+                    <div style="color:var(--accent); margin-bottom:10px; letter-spacing:2px; font-size:11px;">
+                        STEP 2 — Create api.py (place it next to netscan.py)
+                    </div>
+                    <div
+                        style="background:#010810;border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:18px;color:#b0d8e8;white-space:pre-wrap;">
+                        from flask import Flask, request, jsonify
+                        from flask_cors import CORS
+                        from netscan import scan_network, parse_network
+
+                        app = Flask(__name__)
+                        CORS(app) # allows browser to call this API
+
+                        @app.route('/scan', methods=['POST'])
+                        def scan():
+                        data = request.get_json()
+                        target = data.get('network', '')
+                        try:
+                        network = parse_network(target if target else None)
+                        online = scan_network(network)
+                        online.sort(key=lambda x: tuple(map(int, x.split('.'))))
+                        return jsonify({
+                        'network': str(network),
+                        'total': network.num_addresses - 2,
+                        'online': online,
+                        'count': len(online)
+                        })
+                        except Exception as e:
+                        return jsonify({'error': str(e)}), 400
+
+                        if __name__ == '__main__':
+                        app.run(host='0.0.0.0', port=5000, debug=True)</div>
+
+                    <div style="color:var(--accent); margin-bottom:10px; letter-spacing:2px; font-size:11px;">
+                        STEP 3 — Run the backend server
+                    </div>
+                    <div
+                        style="background:#010810;border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:18px;color:var(--accent2);">
+                        python api.py<br>
+                        <span style="color:var(--text-dim)"># Server starts at http://localhost:5000</span>
+                    </div>
+
+                    <div style="color:var(--accent); margin-bottom:10px; letter-spacing:2px; font-size:11px;">
+                        STEP 4 — Update this HTML to call your backend
+                    </div>
+                    <div
+                        style="background:#010810;border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:18px;color:#b0d8e8;white-space:pre-wrap;">
+                        <span style="color:var(--text-dim)">// In the startScan() function, replace the simulation block
+                            with:</span>
+
+                        const res = await fetch('http://localhost:5000/scan', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ network: target })
+                        });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error);
+                        displayResults(data.online, data.network, data.total);
+                    </div>
+
+                    <div style="color:var(--online); margin-top:6px; font-size:11px; letter-spacing:1px;">
+                        ✔ That's it. Open netscan.html in a browser, keep api.py running, and scans will execute in
+                        real-time.
+                    </div>
+
+                </div>
+            </div>
+        </div> -->
+
+        <!-- FOOTER -->
+        <footer>
+            <p>NetScan &nbsp;·&nbsp; by <a href="mailto:business@synerdyn.net">Synerdyn</a> &nbsp;·&nbsp;
+                business@synerdyn.net</p>
+            <p style="margin-top:6px; opacity:0.4;">Use responsibly. Only scan networks you own or have permission to
+                scan.</p>
+        </footer>
+
+    </div><!-- /wrap -->
+
+
+    <script>
+        // ============================================================
+        // STATE
+        // ============================================================
+        let scanResults = [];
+        let scanNetwork = '';
+        let scanTotal = 0;
+        let scanStart = null;
+
+        // ============================================================
+        // HELPERS
+        // ============================================================
+        function now() {
+            const d = new Date();
+            return [d.getHours(), d.getMinutes(), d.getSeconds()]
+                .map(x => String(x).padStart(2, '0')).join(':');
+        }
+
+        function log(msg, cls = '') {
+            const term = document.getElementById('termLog');
+            // remove cursor from last line
+            term.querySelectorAll('.cursor-blink').forEach(el => el.remove());
+            const line = document.createElement('span');
+            line.className = 'log-line';
+            line.innerHTML = `<span class="log-time">[${now()}]</span> <span class="${cls}">${msg}</span>`;
+            term.appendChild(line);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        function logCursor() {
+            const term = document.getElementById('termLog');
+            const last = term.querySelector('.log-line:last-child');
+            if (last) {
+                const c = document.createElement('span');
+                c.className = 'cursor-blink';
+                last.appendChild(c);
+            }
+        }
+
+        function setStatus(text, state = '') {
+            const bar = document.getElementById('statusBar');
+            const txt = document.getElementById('statusText');
+            bar.className = 'status-bar ' + state;
+            txt.textContent = text;
+        }
+
+        function setExample(val) {
+            document.getElementById('netInput').value = val;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function autoDetect() {
+            // Simulate reading local IP (in demo mode)
+            const fakeIPs = ['192.168.1.0/24', '192.168.0.0/24', '10.0.0.0/24'];
+            const ip = fakeIPs[Math.floor(Math.random() * fakeIPs.length)];
+            document.getElementById('netInput').value = ip;
+            log(`Auto-detected local network: ${ip}`, 'log-info');
+            logCursor();
+        }
+
+        function updateStats(total, online, duration, net) {
+            document.getElementById('statTotal').textContent = total ?? '—';
+            document.getElementById('statOnline').textContent = online ?? '—';
+            document.getElementById('statTime').textContent = duration ? duration + 's' : '—';
+            document.getElementById('statNet').textContent = net ?? '—';
+        }
+
+        // ============================================================
+        // DISPLAY RESULTS
+        // ============================================================
+        function displayResults(hosts, netStr, total) {
+            scanResults = hosts;
+            const list = document.getElementById('resultList');
+            list.innerHTML = '';
+
+            document.getElementById('emptyState').style.display = hosts.length ? 'none' : 'block';
+            document.getElementById('resultsHeader').style.display = hosts.length ? 'flex' : 'none';
+            document.getElementById('countBadge').textContent = hosts.length + ' found';
+
+            hosts.forEach((ip, i) => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.style.animationDelay = (i * 40) + 'ms';
+                item.innerHTML = `
+      <div class="result-ping"></div>
+      <span class="result-ip">${ip}</span>
+      <span class="result-index">#${String(i + 1).padStart(3, '0')}</span>
+    `;
+                list.appendChild(item);
+                log(`Host online: ${ip}`, 'log-ok');
+            });
+
+            if (!hosts.length) log('No hosts responded to ping.', 'log-warn');
+            logCursor();
+
+            const elapsed = ((Date.now() - scanStart) / 1000).toFixed(1);
+            updateStats(total, hosts.length, elapsed, netStr);
+        }
+
+        // ============================================================
+        // DEMO SCAN SIMULATION
+        // ============================================================
+        async function simulateScan(target) {
+            // Parse target to generate a fake /24 range
+            let base = '192.168.1';
+            const match = target.match(/^(\d+\.\d+\.\d+)/);
+            if (match) base = match[1];
+
+            // Random 3-12 online hosts
+            const count = 3 + Math.floor(Math.random() * 10);
+            const usedNums = new Set();
+            while (usedNums.size < count) usedNums.add(1 + Math.floor(Math.random() * 253));
+            const hosts = Array.from(usedNums).sort((a, b) => a - b).map(n => `${base}.${n}`);
+            const total = 254;
+            const net = `${base}.0/24`;
+
+            // Simulate delay
+            await new Promise(r => setTimeout(r, 2200 + Math.random() * 1000));
+            return { hosts, total, net };
+        }
+
+        // ============================================================
+        // MAIN SCAN
+        // ============================================================
+        async function startScan() {
+            const input = document.getElementById('netInput');
+            const target = input.value.trim();
+            const btn = document.getElementById('btnScan');
+
+            if (!target) {
+                setStatus('⚠ Enter a network range first.', 'error');
+                log('Error: No target specified.', 'log-err');
+                logCursor();
+                return;
+            }
+
+            btn.disabled = true;
+            scanStart = Date.now();
+
+            // Clear previous
+            document.getElementById('resultList').innerHTML = '';
+            document.getElementById('resultsHeader').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+
+            setStatus(`Scanning ${target} …`, 'scanning');
+            log(`Starting scan on: ${target}`, 'log-info');
+            log(`Dispatching ICMP probes via thread pool (max_workers=100)…`, 'log-info');
+            logCursor();
+            updateStats('…', '…', '…', target);
+
+            try {
+                // =====================================================
+                // DEMO MODE — replace this block with real fetch call
+                // =====================================================
+                const { hosts, total, net } = await simulateScan(target);
+                // =====================================================
+                // REAL BACKEND MODE (uncomment after setting up api.py)
+                // =====================================================
+                // const res = await fetch('http://localhost:5000/scan', {
+                //   method: 'POST',
+                //   headers: { 'Content-Type': 'application/json' },
+                //   body: JSON.stringify({ network: target })
+                // });
+                // const data = await res.json();
+                // if (data.error) throw new Error(data.error);
+                // const { online: hosts, total, network: net } = data;
+                // =====================================================
+
+                const elapsed = ((Date.now() - scanStart) / 1000).toFixed(1);
+                setStatus(`Scan complete. ${hosts.length} host(s) online. (${elapsed}s)`, 'done');
+                log(`Scan finished in ${elapsed}s — ${hosts.length}/${total} hosts online`, 'log-ok');
+                displayResults(hosts, net, total);
+
+            } catch (err) {
+                setStatus('Error: ' + err.message, 'error');
+                log('Error: ' + err.message, 'log-err');
+                logCursor();
+                updateStats('—', '—', '—', '—');
+            }
+
+            btn.disabled = false;
+        }
+
+        // ============================================================
+        // EXPORT / COPY
+        // ============================================================
+        function exportTxt() {
+            if (!scanResults.length) return;
+            const content = `NetScan Results\nNetwork: ${scanNetwork}\nOnline Hosts:\n` + scanResults.join('\n');
+            const blob = new Blob([content], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'netscan_results.txt';
+            a.click();
+            log('Results exported to netscan_results.txt', 'log-info');
+        }
+
+        function copyAll() {
+            if (!scanResults.length) return;
+            navigator.clipboard.writeText(scanResults.join('\n')).then(() => {
+                log('Copied ' + scanResults.length + ' IPs to clipboard.', 'log-ok');
+                logCursor();
+            });
+        }
+
+        function clearResults() {
+            scanResults = [];
+            document.getElementById('resultList').innerHTML = '';
+            document.getElementById('resultsHeader').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('termLog').innerHTML =
+                `<span class="log-line"><span class="log-time">[${now()}]</span> <span class="log-info">Cleared. Ready for next scan.</span></span>`;
+            logCursor();
+            setStatus('Cleared. Ready to scan.', '');
+            updateStats('—', '—', '—', '—');
+        }
+
+        // ============================================================
+        // KEYBOARD SHORTCUT
+        // ============================================================
+        document.getElementById('netInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') startScan();
+        });
+
+        // Init
+        logCursor();
+    </script>
+</body>
+
+</html>
